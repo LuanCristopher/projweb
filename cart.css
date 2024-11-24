@@ -12,18 +12,18 @@ body {
 /* Barra superior */
 .top-bar {
   display: flex;
-  justify-content: center; /* Centraliza horizontalmente os itens */
-  align-items: center; /* Centraliza verticalmente */
+  justify-content: center; 
+  align-items: center;
   padding: 10px 20px;
   background-color: #cbae99;
   color: white;
-  position: relative; /* Para reposicionar elementos internos */
-  height: 50px; /* Defina uma altura fixa */
+  position: relative;
+  height: 50px; 
 }
 
 .top-bar .contact {
 position: absolute;
-left: 20px; /* Alinha na margem esquerda */
+left: 20px;
 font-size: 14px;
 }
 
@@ -33,7 +33,7 @@ font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 2px;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  position: absolute; /* Centraliza a logo no meio */
+  position: absolute;
   left: 50%; 
   transform: translateX(-50%);
 }
@@ -45,12 +45,12 @@ font-size: 14px;
 } 
 
 .icons{
-    position: absolute; /* Posiciona os ícones de forma independente */
-    right: 20px; /* Alinha os ícones na margem direita */
-    top: 50%; /* Centraliza verticalmente na barra */
-    transform: translateY(-50%); /* Ajusta a centralização vertical */
-    display: flex; /* Alinha os ícones horizontalmente */
-    gap: 10px; /* Espaçamento entre os ícones */
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%); 
+    display: flex;
+    gap: 10px;
 }
 
 .top-bar .icons a {
@@ -61,7 +61,7 @@ font-size: 14px;
 }
 
 .top-bar .contact a {
-  text-decoration: none; /* Remove o sublinhado */
+  text-decoration: none;
   color: white;
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -90,17 +90,16 @@ font-size: 14px;
 
 main {
   display: grid;
-  grid-template-columns: 3fr 1fr; /* Define o layout em 2 colunas */
-  gap: 30px; /* Espaçamento horizontal entre carrinho e checkout */
-  padding: 40px 80px; /* Margens internas do main */
+  grid-template-columns: 3fr 1fr;
+  gap: 30px; 
+  padding: 40px 80px;
 }
 
 h1 {
-  grid-column: 1 / span 2; /* O título ocupa ambas as colunas */
+  grid-column: 1 / span 2; 
   font-size: 2.4rem;
   font-weight: bold;
-  margin-bottom: 40px; /* Espaçamento abaixo do título */
-  text-align: left;
+  margin-bottom: 40px; 
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -115,8 +114,8 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px; /* Espaçamento entre itens */
-  padding: 20px; /* Espaçamento interno de cada item */
+  margin-bottom: 20px; 
+  padding: 20px; 
   border: 1px solid #ddd;
   border-radius: 5px;
 }
@@ -124,19 +123,19 @@ h1 {
 .cart-item img {
   width: 80px;
   height: auto;
-  margin-right: 15px; /* Espaçamento entre imagem e informações */
+  margin-right: 15px; 
 }
 
 .item-info {
   flex: 1;
-  margin-right: 10px; /* Espaço entre descrição e controles */
+  margin-right: 10px; 
 }
 
 .item-controls {
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-top: 15px; /* Espaço abaixo da descrição */
+  margin-top: 15px; 
 }
 
 .item-controls button {
@@ -162,20 +161,20 @@ h1 {
 
 .checkout {
   background: white;
-  padding: 20px 30px; /* Espaçamento interno do box */
-  border: 1px solid #ddd; /* Borda cinza clara */
-  border-radius: 5px; /* Bordas arredondadas */
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Sombra leve */
-  width: 100%; /* Largura total da coluna */
+  padding: 20px 30px; 
+  border: 1px solid #ddd; 
+  border-radius: 5px; 
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); 
+  width: 100%; 
 }
 
 /* Efeito de clique no botão */
 .continue-shopping:active,
 .finalize:active {
-  transform: scale(1.05); /* Aumenta o botão levemente */
-  border-width: 3px; /* Aumenta a largura da borda */
-  border-color: #b08972; /* Altere a cor da borda para realçar */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Adiciona uma sombra suave */
+  transform: scale(1.05); 
+  border-width: 3px; 
+  border-color: #b08972; 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); 
   transition: transform 0.2s ease, border 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -186,17 +185,17 @@ h1 {
 }
 
 .checkout .continue-shopping {
-  background-color: #ffa96c; /* Cor do botão */
+  background-color: #ffa96c; 
   color: black;
   padding: 10px 15px;
   border: none;
-  border-radius: 5px; /* Bordas arredondadas */
+  border-radius: 5px; 
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
-  text-align: left; /* Texto alinhado à esquerda */
+  text-align: left; 
   display: block;
-  margin-bottom: 20px; /* Espaço abaixo do botão */
+  margin-bottom: 20px; 
 }
 
 .checkout .continue-shopping::after {
@@ -210,21 +209,21 @@ h1 {
 }
 
 .summary p {
-  margin: 15px 0; /* Margem entre linhas */
+  margin: 15px 0; 
   display: flex;
-  justify-content: space-between; /* Alinha texto e valores */
-  font-size: 0.9rem; /* Tamanho do texto */
+  justify-content: space-between; 
+  font-size: 0.9rem; 
 }
 
 .summary hr {
   border: none;
-  border-top: 1px solid #ddd; /* Linha divisória */
-  margin: 10px 0; /* Margem superior/inferior */
+  border-top: 1px solid #ddd; 
+  margin: 10px 0; 
 }
 
 .summary a {
-  color: #007bff; /* Azul para o link */
-  text-decoration: none; /* Remove sublinhado */
+  color: #007bff; 
+  text-decoration: none; 
   font-size: 0.9rem;
 }
 
@@ -241,17 +240,17 @@ h1 {
 }
 
 .finalize {
-  background-color: #d1b095; /* Cor do botão */
-  color: black; /* Cor do texto */
+  background-color: #d1b095; 
+  color: black; 
   padding: 15px;
   border: none;
   cursor: pointer;
-  border-radius: 5px; /* Bordas arredondadas */
+  border-radius: 5px; 
   display: block;
-  width: 100%; /* Largura total */
+  width: 100%; 
   font-size: 1rem;
   font-weight: bold;
   text-align: center;
-  margin-top: 20px; /* Espaço acima do botão */
+  margin-top: 20px; 
 }
 
