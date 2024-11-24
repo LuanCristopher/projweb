@@ -105,23 +105,31 @@ h1 {
 
 .checkout {
   background: white;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  height: fit-content; /* Ajusta à altura do conteúdo */
+  padding: 20px 30px; /* Espaçamento interno do box */
+  border: 1px solid #ddd; /* Borda cinza clara */
+  border-radius: 5px; /* Bordas arredondadas */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Sombra leve */
+  width: 100%; /* Largura total da coluna */
 }
 
 .checkout .continue-shopping {
-  background-color: #d1b095;
-  color: white;
-  padding: 12px;
+  background-color: #ffa96c; /* Cor do botão */
+  color: black;
+  padding: 10px 15px;
   border: none;
+  border-radius: 5px; /* Bordas arredondadas */
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
+  text-align: left; /* Texto alinhado à esquerda */
   display: block;
-  width: 100%;
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 1.1rem;
+  margin-bottom: 20px; /* Espaço abaixo do botão */
+}
+
+.checkout .continue-shopping::after {
+  content: ">";
+  float: right;
+  font-weight: bold;
 }
 
 .summary {
@@ -129,27 +137,48 @@ h1 {
 }
 
 .summary p {
-  margin-bottom: 10px;
+  margin: 15px 0; /* Margem entre linhas */
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Alinha texto e valores */
+  font-size: 0.9rem; /* Tamanho do texto */
+}
+
+.summary hr {
+  border: none;
+  border-top: 1px solid #ddd; /* Linha divisória */
+  margin: 10px 0; /* Margem superior/inferior */
 }
 
 .summary a {
-  color: #007bff;
-  text-decoration: none;
+  color: #007bff; /* Azul para o link */
+  text-decoration: none; /* Remove sublinhado */
+  font-size: 0.9rem;
+}
+
+.total {
+  font-size: 1.2rem;
   font-weight: bold;
+  color: black;
+  margin-top: 10px;
+}
+
+.total-subtext {
+  font-size: 0.9rem;
+  color: #777;
 }
 
 .finalize {
-  background-color: #d1b095;
-  color: white;
+  background-color: #d1b095; /* Cor do botão */
+  color: black; /* Cor do texto */
   padding: 15px;
   border: none;
   cursor: pointer;
+  border-radius: 5px; /* Bordas arredondadas */
   display: block;
-  width: 100%;
-  font-size: 1.2rem;
+  width: 100%; /* Largura total */
+  font-size: 1rem;
   font-weight: bold;
   text-align: center;
+  margin-top: 20px; /* Espaço acima do botão */
 }
 
