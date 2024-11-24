@@ -1,0 +1,132 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+  }
+  
+  .top-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #cbae99;
+    color: white;
+    position: relative;
+    height: 50px;
+  }
+  
+  .top-bar h2 {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  .top-bar .contact {
+    position: absolute;
+    left: 20px;
+    font-size: 14px;
+  }
+  
+  .top-bar .logo {
+    font-size: 30px;
+    font-weight: lighter;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .top-bar .icons img {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+  }
+  
+  .icons {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 10px;
+  }
+  
+  .top-bar .icons a {
+    margin-left: 15px;
+    text-decoration: none;
+    color: white;
+  }
+  
+  .top-bar .contact a {
+    text-decoration: none;
+    color: white;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+  
+  /* Formulário */
+  .contact-form-section {
+    display: flex;
+    justify-content: center;
+    padding: 50px 0;
+  }
+  
+  .form-container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+  }
+  
+  .form-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .contact-form input,
+  .contact-form textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .contact-form input:focus,
+  .contact-form textarea:focus {
+    border-color: #cbae99;
+    outline: none;
+  }
+  
+  .contact-form textarea {
+    height: 150px;
+    resize: none;
+  }
+  
+  .submit-btn {
+    padding: 12px 20px;
+    background-color: #cbae99;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .submit-btn:hover {
+    background-color: #a88f77;
+  }
+  
