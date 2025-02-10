@@ -1,0 +1,24 @@
+{
+  "name": "projweb",
+  "version": "1.0.0",
+  "description": "# Figma -> https://www.figma.com/design/mp6FfD4Uql0FyNt2ysQFs0/Moura?node-id=0-1&t=he7twIq91aCY9nQq-1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuanCristopher/projweb.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LuanCristopher/projweb/issues"
+  },
+  "homepage": "https://github.com/LuanCristopher/projweb#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "express-session": "^1.18.1"
+  }
+}
