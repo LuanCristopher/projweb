@@ -5,79 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Produto - Moura</title>
   <link rel="stylesheet" href="../css/product.css">
+  <script src="../script/product.js" defer></script>
 </head>
 <body>
-    <header class="top-bar">
-
-        <div class="contact">
-          <a href="../html/fale.html">
-            <h2>+Fale Conosco</h2>
-          </a>
-        </div>
-    
-        <div class="logo">MOURA</div>
-    
-        <div class="icons">
-          <a href="../html/cart.html">
-            <img src="../fotos-geral/fotos-cart/cart-icon2.png" alt="car">
-            </a>
-            <a href="../html/login.html">
-            <img src="../fotos-geral/fotos-login/pessoa-icon2.png" alt="pessoa">
-            </a>
-          <a href="../html/homepage.html">
-            <img src="../fotos-geral/fotos-login/casa-icon.png" alt="car">
-          </a>
-        </div>
-    
-      </header>
+  <header class="top-bar">
+    <div class="contact">
+      <a href="../html/fale.html">
+        <h2>+Fale Conosco</h2>
+      </a>
+    </div>
+    <div class="logo">MOURA</div>
+    <div class="icons">
+      <a href="../html/cart.html">
+        <img src="../fotos-geral/fotos-cart/cart-icon2.png" alt="Carrinho">
+      </a>
+      <a href="../html/login.html">
+        <img src="../fotos-geral/fotos-login/pessoa-icon2.png" alt="Pessoa">
+      </a>
+      <a href="../html/homepage.html">
+        <img src="../fotos-geral/fotos-login/casa-icon.png" alt="Casa">
+      </a>
+    </div>
+  </header>
 
   <main class="product-page">
     <section class="product-section">
-      <!-- Descrição do produto -->
+      <!-- Painel de exibição -->
       <div class="product-description">
-        <h2>Regata Fila Transfer Feminina - Preto</h2>
+        <h2 id="product-name"></h2>
         <ul>
-          <li>Casual</li>
-          <li>Regata</li>
-          <li>Fila</li>
-          <li>Dia-a-Dia</li>
+          <li id="product-color"></li>
+          <li id="product-brand"></li>
+          <li id="product-gender"></li>
         </ul>
-        <p>
-          Blusa feminina confeccionada em malha de viscose com elastano. Modelagem slim fit, ajustada ao corpo, sem manga.
-          Possui abertura frontal em zíper com puxador personalizado, decote e cavas com acabamento em costura trançador.
-        </p>
+        <p id="product-description"></p>
       </div>
 
       <div class="separator"></div>
 
-      <!-- Miniaturas e foto principal -->
       <div class="image-container">
-        <div class="thumbnails">
-          <img src="../fotos-geral/fotos-product/regata fila transfer 1.webp" alt="Miniatura 1">
-          <img src="../fotos-geral/fotos-product/regata fila transfer 2.webp" alt="Miniatura 2">
-          <img src="../fotos-geral/fotos-product/regata fila transfer 3.webp" alt="Miniatura 3">
+        <div class="thumbnails" id="thumbnails-container">
+          <!-- Miniaturas ou lista de produtos serão inseridas via JS -->
         </div>
         <div class="main-image">
-          <img src="../fotos-geral/fotos-product/regata fila transfer 1.webp" alt="Foto do produto principal">
+          <img id="main-image" src="" alt="Foto do produto principal">
         </div>
       </div>
 
       <div class="separator"></div>
 
-      <!-- Preço e especificações -->
+      <!-- Área de preço e especificações -->
       <div class="product-info">
-        <h3>R$ 120,00 no PIX</h3>
-        <p>ou R$ 135,00 em 10x sem juros</p>
-        <p><strong>Cor:</strong> Preto</p>
-        <p><strong>Marca:</strong> Fila</p>
-        <p><strong>Gênero:</strong> Feminino</p>
-        <div >
+        <h3 id="product-price-pix"></h3>
+        <p id="product-price-card"></p>
+
+        <p><strong>Cor:</strong> <span id="product-color2"></span></p>
+        <p><strong>Marca:</strong> <span id="product-brand2"></span></p>
+        <p><strong>Gênero:</strong> <span id="product-gender2"></span></p>
+
+        <div class="sizes-container">
           <button class="sizes">P</button>
           <button class="sizes">M</button>
           <button class="sizes">G</button>
           <button class="sizes">GG</button>
         </div>
-        <button class="buy-button">COMPRAR</button>
+
+        <!-- Botão COMPRAR -->
+        <button class="buy-button" id="buy-button">COMPRAR</button>
+
         <div class="cep">
           <p>Consulte prazo para entrega:</p>
           <input type="text" placeholder="Insira o CEP">
@@ -88,45 +83,25 @@
 
     <div class="separator-horizontal"></div>
 
-    <!-- Produtos similares -->
+    <!-- Produtos Similares -->
     <section class="similar-products">
       <h3>Produtos Similares:</h3>
       <div class="products-grid">
-        <!-- 7 produtos similares -->
-        <div class="product">
-          <img src="../fotos-geral/fotos-product/bermuda biker.webp" alt="Produto Similar 1">
-          <p>Regata Hering Básica</p>
-          <p>R$ 82,00 no PIX</p>
-        </div>
-        <div class="product">
-          <img src="../fotos-geral/fotos-product/calça legging addidas.webp" alt="Produto Similar 2">
-          <p>Blusa Nike</p>
+        <!-- Ajuste o data-id para bater com o server.js -->
+        <div class="product" data-id="1">
+          <img src="../fotos-geral/fotos-product/regata-fila-transfer-1.webp" alt="Produto 1">
+          <p>Regata Fila Transfer</p>
           <p>R$ 120,00</p>
         </div>
-        <div class="product">
-          <img src="../fotos-geral/fotos-product/camiseta adidas.webp" alt="Produto Similar 3">
+        <div class="product" data-id="2">
+          <img src="../fotos-geral/fotos-product/camiseta-adidas.webp" alt="Produto 2">
           <p>Camiseta Adidas</p>
-          <p>R$ 89,90</p>
+          <p>R$ 100,00</p>
         </div>
-        <div class="product">
-          <img src="../fotos-geral/fotos-product/regata diadora.webp" alt="Produto Similar 4">
-          <p>Regata Puma</p>
-          <p>R$ 110,00</p>
-        </div>
-        <div class="product">
-          <img src="../fotos-geral/fotos-product/regata fila.webp" alt="Produto Similar 5">
-          <p>Top Hering</p>
-          <p>R$ 78,00</p>
-        </div>
-        <div class="product">
-          <img src="../fotos-geral/fotos-product/regata hering.webp" alt="Produto Similar 6">
-          <p>Jaqueta Fila</p>
-          <p>R$ 230,00</p>
-        </div>
-        <div class="product">
-          <img src="../fotos-geral/fotos-product/regata malwee.webp" alt="Produto Similar 7">
-          <p>Short Nike</p>
-          <p>R$ 95,00</p>
+        <div class="product" data-id="3">
+          <img src="../fotos-geral/fotos-product/calca-leggin.webp" alt="Produto 3">
+          <p>Calça Legging</p>
+          <p>R$ 150,00</p>
         </div>
       </div>
     </section>
