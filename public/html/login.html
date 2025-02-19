@@ -3,48 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Black November</title>
+  <title>Login e Cadastro - Moura</title>
   <link rel="stylesheet" href="../css/login.css">
-  <script src="../scripts/login.js" defer></script>
+  <script src="../script/login.js" defer></script>
 </head>
 <body>
-    <header class="top-bar">
+  <header class="top-bar">
+    <div class="contact">
+      <a href="../html/fale.html">
+        <h2>+Fale Conosco</h2>
+      </a>
+    </div>
+    <div class="logo">MOURA</div>
+    <div class="icons">
+      <a href="../html/cart.html">
+        <img src="../fotos-geral/fotos-cart/cart-icon2.png" alt="Carrinho">
+      </a>
+      <a href="../html/login.html">
+        <img src="../fotos-geral/fotos-login/pessoa-icon2.png" alt="Pessoa">
+      </a>
+      <a href="../html/homepage.html">
+        <img src="../fotos-geral/fotos-login/casa-icon.png" alt="Casa">
+      </a>
+    </div>
+  </header>
 
-        <div class="contact">
-          <a href="../html/fale.html">
-            <h2>+Fale Conosco</h2>
-          </a>
-        </div>
-    
-        <div class="logo">MOURA</div>
-    
-        <div class="icons">
-          <a href="../html/cart.html">
-            <img src="../fotos-geral/fotos-cart/cart-icon2.png" alt="car">
-            </a>
-            <a href="../html/login.html">
-            <img src="../fotos-geral/fotos-login/pessoa-icon2.png" alt="pessoa">
-            </a>
-          <a href="../html/homepage.html">
-            <img src="../fotos-geral/fotos-login/casa-icon.png" alt="car">
-          </a>
-        </div>
-    
-      </header>
-    
   <main class="container">
     <div class="content">
+      <!-- Formulário de Login -->
       <div class="form-section">
         <h2>Já sou cliente</h2>
-        <form>
+        <form id="login-form">
           <div class="input-group">
             <label for="email-cpf">E-mail, CPF ou CNPJ</label>
-            <input type="text" id="email-cpf" placeholder="E-mail, CPF ou CNPJ">
+            <input type="text" id="email-cpf" placeholder="E-mail, CPF ou CNPJ" required>
           </div>
           <div class="input-group">
             <label for="senha">Senha</label>
             <div class="password-input">
-              <input type="password" id="senha" placeholder="Senha">
+              <input type="password" id="senha" placeholder="Senha" required>
               <span class="toggle-visibility">👁️</span>
             </div>
           </div>
@@ -52,14 +49,30 @@
           <button type="submit" class="btn btn-primary">Acessar conta</button>
         </form>
       </div>
+
+      <!-- Formulário de Cadastro -->
       <div class="form-section">
         <h2>Criar conta</h2>
-        <form>
+        <form id="register-form">
           <div class="input-group">
             <label for="new-email">Informe seu e-mail</label>
-            <input type="email" id="new-email" placeholder="Informe seu e-mail">
+            <input type="email" id="new-email" placeholder="Informe seu e-mail" required>
           </div>
-          <button type="submit" class="btn btn-primary">Prosseguir</button>
+          <div class="input-group">
+            <label for="new-password">Senha</label>
+            <div class="password-input">
+              <input type="password" id="new-password" placeholder="Crie uma senha" required>
+              <span class="toggle-visibility">👁️</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="confirm-password">Confirme a Senha</label>
+            <div class="password-input">
+              <input type="password" id="confirm-password" placeholder="Confirme a senha" required>
+              <span class="toggle-visibility">👁️</span>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Criar Conta</button>
         </form>
       </div>
     </div>
