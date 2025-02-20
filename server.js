@@ -4,13 +4,63 @@ const path = require("path");
 
 // ======= BANCO DE DADOS EM MEMÓRIA =======
 let users = [];  // [{ email, password, token }]
-
-// Três produtos de exemplo:
 let products = [
   {
     id: "1",
-    name: "Regata Fila Transfer Feminina - Preto",
-    description: "Blusa feminina em malha de viscose com elastano. Modelagem slim fit, sem manga.",
+    name: "Bermuda Biker",
+    description: "Bermuda Biker feminina, ideal para treinos e uso casual.",
+    pricePix: 80.0,
+    priceCard: 90.0,
+    color: "Preto",
+    brand: "Genérica",
+    gender: "Feminino",
+    images: [
+      "../fotos-geral/fotos-product/bermuda-biker.webp"
+    ]
+  },
+  {
+    id: "2",
+    name: "Calça Legging",
+    description: "Calça legging para atividades físicas, com tecido confortável.",
+    pricePix: 120.0,
+    priceCard: 135.0,
+    color: "Rosa",
+    brand: "Nike",
+    gender: "Feminino",
+    images: [
+      "../fotos-geral/fotos-product/calca-leggin.webp"
+    ]
+  },
+  {
+    id: "3",
+    name: "Camiseta Adidas",
+    description: "Camiseta leve e confortável para o dia a dia.",
+    pricePix: 100.0,
+    priceCard: 110.0,
+    color: "Azul",
+    brand: "Adidas",
+    gender: "Unissex",
+    images: [
+      "../fotos-geral/fotos-product/camiseta-adidas.webp"
+    ]
+  },
+  {
+    id: "4",
+    name: "Regata Diadora",
+    description: "Regata Diadora básica, perfeita para corridas e exercícios.",
+    pricePix: 90.0,
+    priceCard: 100.0,
+    color: "Preto",
+    brand: "Diadora",
+    gender: "Feminino",
+    images: [
+      "../fotos-geral/fotos-product/regata-diadora.webp"
+    ]
+  },
+  {
+    id: "5",
+    name: "Regata Fila Transfer - Preta",
+    description: "Blusa feminina em malha de viscose com elastano.",
     pricePix: 120.0,
     priceCard: 135.0,
     color: "Preto",
@@ -23,44 +73,29 @@ let products = [
     ]
   },
   {
-    id: "2",
-    name: "Camiseta Adidas Masculina - Azul",
-    description: "Camiseta leve e confortável, ideal para treinos e uso diário.",
-    pricePix: 100.0,
-    priceCard: 110.0,
-    color: "Azul",
-    brand: "Adidas",
-    gender: "Masculino",
-    images: [
-      "../fotos-geral/fotos-product/camiseta-adidas.webp"
-    ]
-  },
-  {
-    id: "3",
-    name: "Calça Legging Nike Feminina - Rosa",
-    description: "Calça Nike com tecido leve e respirável, perfeita para atividades físicas.",
-    pricePix: 150.0,
-    priceCard: 170.0,
-    color: "Rosa",
-    brand: "Nike",
+    id: "6",
+    name: "Regata Malwee",
+    description: "Regata Malwee para uso casual.",
+    pricePix: 70.0,
+    priceCard: 80.0,
+    color: "Branca",
+    brand: "Malwee",
     gender: "Feminino",
     images: [
-      "../fotos-geral/fotos-product/calca-leggin.webp"
+      "../fotos-geral/fotos-product/regata-malwee.webp"
     ]
   }
+  // Adicione mais se quiser
 ];
 
-// Carrinho em memória (para fins de exemplo)
-let cart = []; // [{ productId }, { productId }...]
+// Carrinho em memória (exemplo simples)
+let cart = []; // [{ productId }]
 
 // ======= FUNÇÕES AUXILIARES =======
-
-// Gera um token simples para sessão
 function generateToken() {
   return Math.random().toString(36).substring(2);
 }
 
-// Lê cookies do cabeçalho "Cookie"
 function parseCookies(cookieHeader) {
   const cookies = {};
   if (!cookieHeader) return cookies;
@@ -72,19 +107,16 @@ function parseCookies(cookieHeader) {
   return cookies;
 }
 
-// Verifica se o usuário está logado (se tem um token válido)
 function isUserLogged(req) {
   const cookieHeader = req.headers.cookie;
   const cookies = parseCookies(cookieHeader);
   const sessionToken = cookies.session;
   if (!sessionToken) return false;
 
-  // Se algum user tiver user.token === sessionToken, está logado
   const userFound = users.find((u) => u.token === sessionToken);
   return !!userFound;
 }
 
-// Serve arquivos estáticos (HTML, CSS, JS, Imagens, etc.)
 function serveStaticFile(res, filePath) {
   const extname = path.extname(filePath);
   let contentType = "text/html";
@@ -144,14 +176,12 @@ const server = http.createServer((req, res) => {
           return res.end(JSON.stringify({ error: "As senhas não correspondem." }));
         }
 
-        // Verifica se já existe um usuário com esse email
         const userExists = users.find((u) => u.email === email);
         if (userExists) {
           res.writeHead(409, { "Content-Type": "application/json" });
           return res.end(JSON.stringify({ error: "E-mail já cadastrado." }));
         }
 
-        // Cria o novo usuário
         const newUser = { email, password };
         users.push(newUser);
 
@@ -171,18 +201,15 @@ const server = http.createServer((req, res) => {
     req.on("end", () => {
       try {
         const { emailCpf, password } = JSON.parse(body);
-        // Busca o usuário
         const userFound = users.find((u) => u.email === emailCpf && u.password === password);
         if (!userFound) {
           res.writeHead(401, { "Content-Type": "application/json" });
           return res.end(JSON.stringify({ error: "Credenciais inválidas." }));
         }
 
-        // Gera token de sessão e salva no user
         const token = generateToken();
         userFound.token = token;
 
-        // Envia o cookie
         res.writeHead(200, {
           "Content-Type": "application/json",
           "Set-Cookie": `session=${token}; HttpOnly; Path=/;`
@@ -216,14 +243,12 @@ const server = http.createServer((req, res) => {
     return res.end(JSON.stringify(product));
   }
 
-  // 5) Adicionar item ao carrinho (POST /api/cart)
+  // 5) Carrinho - Adicionar item (POST /api/cart)
   else if (url === "/api/cart" && method === "POST") {
-    // Exige login
     if (!isUserLogged(req)) {
       res.writeHead(401, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Não autorizado. Faça login." }));
     }
-
     let body = "";
     req.on("data", (chunk) => (body += chunk));
     req.on("end", () => {
@@ -234,7 +259,6 @@ const server = http.createServer((req, res) => {
           res.writeHead(404, { "Content-Type": "application/json" });
           return res.end(JSON.stringify({ error: "Produto não encontrado." }));
         }
-        // Adiciona no array cart
         cart.push({ productId });
         res.writeHead(200, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ message: "Item adicionado ao carrinho." }));
@@ -245,17 +269,33 @@ const server = http.createServer((req, res) => {
     });
   }
 
-  // ========== BLOQUEAR PÁGINAS SE NÃO LOGADO ==========
+  // 6) Carrinho - Listar itens (GET /api/cart)
+  else if (url === "/api/cart" && method === "GET") {
+    if (!isUserLogged(req)) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Não autorizado. Faça login." }));
+    }
+    // Retorna array cart
+    res.writeHead(200, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify(cart));
+  }
+
+  // ========== BLOQUEAR PÁGINAS (product.html e cart.html) SE NÃO LOGADO ==========
   else if (
-    (url === "/html/cart.html" || url.startsWith("/html/cart.html?")) ||
-    (url === "/html/product.html" || url.startsWith("/html/product.html?"))
+    url.startsWith("/html/product.html") ||
+    url.startsWith("/html/cart.html")
   ) {
+    // 1) Se não estiver logado, redireciona para login
     if (!isUserLogged(req)) {
       res.writeHead(302, { Location: "/html/login.html" });
       return res.end();
     }
-    // Se estiver logado, servir arquivo
-    let filePath = path.join(__dirname, "public", url);
+
+    // 2) Remove query string para achar o arquivo físico
+    //    ex: "/html/product.html?id=2" -> "/html/product.html"
+    const basePath = url.split("?")[0];
+    let filePath = path.join(__dirname, "public", basePath);
+
     fs.stat(filePath, (err, stats) => {
       if (err || !stats.isFile()) {
         res.writeHead(404, { "Content-Type": "text/plain" });
@@ -265,7 +305,7 @@ const server = http.createServer((req, res) => {
     });
   }
 
-  // ========== SERVIÇO DE ARQUIVOS ESTÁTICOS ==========
+  // ========== SERVIÇO DE ARQUIVOS ESTÁTICOS (HTML, CSS, JS, IMAGENS) ==========
   else {
     let filePath = path.join(__dirname, "public", url);
 

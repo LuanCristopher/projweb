@@ -5,82 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meu Carrinho - Moura</title>
   <link rel="stylesheet" href="../css/cart.css">
+  <script src="../script/cart.js" defer></script>
 </head>
 <body>
   <header class="top-bar">
-
     <div class="contact">
       <a href="../html/fale.html">
         <h2>+Fale Conosco</h2>
       </a>
     </div>
-
     <div class="logo">MOURA</div>
-
     <div class="icons">
       <a href="../html/cart.html">
-        <img src="../fotos-geral/fotos-cart/cart-icon2.png" alt="car">
-        </a>
-        <a href="../html/login.html">
-        <img src="../fotos-geral/fotos-login/pessoa-icon2.png" alt="pessoa">
-        </a>
+        <img src="../fotos-geral/fotos-cart/cart-icon2.png" alt="Carrinho">
+      </a>
+      <a href="../html/login.html">
+        <img src="../fotos-geral/fotos-login/pessoa-icon2.png" alt="Login">
+      </a>
       <a href="../html/homepage.html">
-        <img src="../fotos-geral/fotos-login/casa-icon.png" alt="car">
+        <img src="../fotos-geral/fotos-login/casa-icon.png" alt="Home">
       </a>
     </div>
-
   </header>
 
   <main>
     <h1>Meu Carrinho</h1>
-    <section class="cart">
-      <div class="cart-item">
-        <img src="../fotos-geral/fotos-cart/CAMISA MIZUNO NIRVANA.jpg" alt="Camiseta Mizuno Nirvana Feminina">
-        <div class="item-info">
-          <p>Camiseta Mizuno Nirvana Feminina</p>
-          <p>Cor: Preto</p>
-          <p>Tamanho: M</p>
-          <label><input type="checkbox"> Presente</label>
-          <div class="item-controls">
-            <button>-</button>
-            <span>1</span>
-            <button>+</button>
-          </div>
-        </div>
-        <div class="item-price">
-          <p>R$ 300,00 no PIX</p>
-          <p>ou R$330,00 em 10x no cartão (sem juros)</p>
-          <button class="remove">🗑️</button>
-        </div>
-      </div>
 
-      <div class="cart-item">
-        <img src="../fotos-geral/fotos-cart/SHORT FILLA BASSIC.jpg" alt="Short Fila Basic Train Double Feminino">
-        <div class="item-info">
-          <p>Short Fila Basic Train Double Feminino</p>
-          <p>Cor: Bordô</p>
-          <p>Tamanho: P</p>
-          <label><input type="checkbox"> Presente</label>
-          <div class="item-controls">
-            <button>-</button>
-            <span>1</span>
-            <button>+</button>
-          </div>
-        </div>
-        <div class="item-price">
-          <p>R$ 100,00 no PIX</p>
-          <p>ou R$120,00 em 10x no cartão (sem juros)</p>
-          <button class="remove">🗑️</button>
-        </div>
-      </div>
+    <section class="cart" id="cart-items">
+      <!-- cart.js vai inserir os itens aqui -->
     </section>
 
     <aside class="checkout">
-      <button class="continue-shopping">Continuar comprando</button>
+      <button class="continue-shopping" id="continue-shopping">Continuar comprando</button>
       <div class="summary">
         <p>
           <span>Subtotal</span>
-          <span>R$400,00</span>
+          <span id="subtotal-price">R$ 0,00</span>
         </p>
         <hr />
         <p>
@@ -88,11 +48,12 @@
           <a href="#">Adicionar</a>
         </p>
         <hr />
-        <p class="total">
-          R$ 400,00 NO PIX
-          <span class="total-subtext">ou R$ 450,00 em 10x no cartão (sem juros)</span>
+        <p class="total" id="total-price">
+          R$ 0,00 NO PIX
+          <span class="total-subtext">ou R$ 0,00 em 10x no cartão (sem juros)</span>
         </p>
         <button class="finalize">FINALIZAR COMPRA</button>
+      </div>
     </aside>
   </main>
 </body>

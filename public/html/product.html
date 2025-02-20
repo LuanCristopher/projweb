@@ -20,17 +20,16 @@
         <img src="../fotos-geral/fotos-cart/cart-icon2.png" alt="Carrinho">
       </a>
       <a href="../html/login.html">
-        <img src="../fotos-geral/fotos-login/pessoa-icon2.png" alt="Pessoa">
+        <img src="../fotos-geral/fotos-login/pessoa-icon2.png" alt="Login">
       </a>
       <a href="../html/homepage.html">
-        <img src="../fotos-geral/fotos-login/casa-icon.png" alt="Casa">
+        <img src="../fotos-geral/fotos-login/casa-icon.png" alt="Home">
       </a>
     </div>
   </header>
 
   <main class="product-page">
     <section class="product-section">
-      <!-- Painel de exibição -->
       <div class="product-description">
         <h2 id="product-name"></h2>
         <ul>
@@ -44,9 +43,7 @@
       <div class="separator"></div>
 
       <div class="image-container">
-        <div class="thumbnails" id="thumbnails-container">
-          <!-- Miniaturas ou lista de produtos serão inseridas via JS -->
-        </div>
+        <div class="thumbnails" id="thumbnails-container"></div>
         <div class="main-image">
           <img id="main-image" src="" alt="Foto do produto principal">
         </div>
@@ -54,11 +51,9 @@
 
       <div class="separator"></div>
 
-      <!-- Área de preço e especificações -->
       <div class="product-info">
         <h3 id="product-price-pix"></h3>
         <p id="product-price-card"></p>
-
         <p><strong>Cor:</strong> <span id="product-color2"></span></p>
         <p><strong>Marca:</strong> <span id="product-brand2"></span></p>
         <p><strong>Gênero:</strong> <span id="product-gender2"></span></p>
@@ -70,38 +65,15 @@
           <button class="sizes">GG</button>
         </div>
 
-        <!-- Botão COMPRAR -->
-        <button class="buy-button" id="buy-button">COMPRAR</button>
+        <!-- Botão "Adicionar ao Carrinho" -->
+        <button class="buy-button" id="add-to-cart-btn">Adicionar ao Carrinho</button>
+        <!-- Botão "Continuar" -> cart.html -->
+        <button class="continue-button" id="continue-btn">Continuar</button>
 
         <div class="cep">
           <p>Consulte prazo para entrega:</p>
           <input type="text" placeholder="Insira o CEP">
           <button class="calcu-button">CALCULAR</button>
-        </div>
-      </div>
-    </section>
-
-    <div class="separator-horizontal"></div>
-
-    <!-- Produtos Similares -->
-    <section class="similar-products">
-      <h3>Produtos Similares:</h3>
-      <div class="products-grid">
-        <!-- Ajuste o data-id para bater com o server.js -->
-        <div class="product" data-id="1">
-          <img src="../fotos-geral/fotos-product/regata-fila-transfer-1.webp" alt="Produto 1">
-          <p>Regata Fila Transfer</p>
-          <p>R$ 120,00</p>
-        </div>
-        <div class="product" data-id="2">
-          <img src="../fotos-geral/fotos-product/camiseta-adidas.webp" alt="Produto 2">
-          <p>Camiseta Adidas</p>
-          <p>R$ 100,00</p>
-        </div>
-        <div class="product" data-id="3">
-          <img src="../fotos-geral/fotos-product/calca-leggin.webp" alt="Produto 3">
-          <p>Calça Legging</p>
-          <p>R$ 150,00</p>
         </div>
       </div>
     </section>

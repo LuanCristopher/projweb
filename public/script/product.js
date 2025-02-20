@@ -1,10 +1,13 @@
 // public/script/product.js
 document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get("id");
     let currentProductId = null;
   
-    // Botão COMPRAR
-    const buyButton = document.getElementById("buy-button");
-    buyButton.addEventListener("click", async () => {
+    const addToCartBtn = document.getElementById("add-to-cart-btn");
+    const continueBtn = document.getElementById("continue-btn");
+  
+    addToCartBtn.addEventListener("click", async () => {
       if (!currentProductId) {
         alert("Nenhum produto selecionado!");
         return;
@@ -16,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ productId: currentProductId })
         });
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Erro ao adicionar ao carrinho.");
+          const errData = await response.json();
+          throw new Error(errData.error || "Erro ao adicionar ao carrinho.");
         }
         alert("Produto adicionado ao carrinho com sucesso!");
       } catch (error) {
@@ -25,17 +28,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   
-    // Função para carregar detalhes de um produto
-    async function loadProductDetails(productId) {
+    continueBtn.addEventListener("click", () => {
+      window.location.href = "/html/cart.html";
+    });
+  
+    async function loadProductDetails(id) {
       try {
-        const resp = await fetch(`/api/products/${productId}`);
+        const resp = await fetch(`/api/products/${id}`);
         if (!resp.ok) {
           throw new Error("Produto não encontrado ou erro no servidor.");
         }
         const product = await resp.json();
-        currentProductId = product.id; // salva globalmente
+        currentProductId = product.id;
   
-        // Preenche o painel superior
         document.getElementById("product-name").textContent = product.name;
         document.getElementById("product-description").textContent = product.description;
         document.getElementById("product-color").textContent = product.color;
@@ -47,41 +52,35 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("product-price-pix").textContent = `R$ ${product.pricePix} no PIX`;
         document.getElementById("product-price-card").textContent = `ou R$ ${product.priceCard} em 10x sem juros`;
   
-        // Imagens
         const mainImage = document.getElementById("main-image");
-        const thumbnailsContainer = document.getElementById("thumbnails-container");
-        thumbnailsContainer.innerHTML = "";
+        const thumbsContainer = document.getElementById("thumbnails-container");
+        thumbsContainer.innerHTML = "";
   
         if (product.images && product.images.length > 0) {
           mainImage.src = product.images[0];
-          product.images.forEach((imgUrl, index) => {
-            const thumbImg = document.createElement("img");
-            thumbImg.src = imgUrl;
-            thumbImg.alt = `Miniatura ${index + 1}`;
-            thumbImg.style.cursor = "pointer";
-            thumbImg.addEventListener("click", () => {
+          product.images.forEach((imgUrl) => {
+            const thumb = document.createElement("img");
+            thumb.src = imgUrl;
+            thumb.style.cursor = "pointer";
+            thumb.addEventListener("click", () => {
               mainImage.src = imgUrl;
             });
-            thumbnailsContainer.appendChild(thumbImg);
+            thumbsContainer.appendChild(thumb);
           });
         } else {
           mainImage.src = "https://via.placeholder.com/300x300?text=Sem+Imagem";
         }
       } catch (error) {
         alert(error.message);
+        window.location.href = "/html/homepage.html";
       }
     }
   
-    // Tornar clicáveis os itens de "Produtos Similares"
-    const similarProducts = document.querySelectorAll(".similar-products .product");
-    similarProducts.forEach((prodDiv) => {
-      prodDiv.addEventListener("click", () => {
-        const pId = prodDiv.getAttribute("data-id");
-        loadProductDetails(pId);
-      });
-    });
-  
-    // Se quiser carregar um produto por padrão ao abrir a página, descomente:
-    // loadProductDetails("1");
+    if (productId) {
+      loadProductDetails(productId);
+    } else {
+      alert("Nenhum produto especificado!");
+      window.location.href = "/html/homepage.html";
+    }
   });
   
