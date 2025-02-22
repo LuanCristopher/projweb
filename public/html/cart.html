@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meu Carrinho - Moura</title>
   <link rel="stylesheet" href="../css/cart.css">
+  <link rel="stylesheet-global" href="../css/global.css">
   <script src="../script/cart.js" defer></script>
+  <script src="../script/badge.js" defer></script>
+  
 </head>
 <body>
   <header class="top-bar">
@@ -16,8 +19,10 @@
     </div>
     <div class="logo">MOURA</div>
     <div class="icons">
-      <a href="../html/cart.html">
+      <a href="../html/cart.html" class="cart-icon-wrapper">
         <img src="../fotos-geral/fotos-cart/cart-icon2.png" alt="Carrinho">
+        <!-- A bolinha -->
+        <span class="cart-icon-badge" id="cart-badge">1</span>
       </a>
       <a href="../html/login.html">
         <img src="../fotos-geral/fotos-login/pessoa-icon2.png" alt="Login">

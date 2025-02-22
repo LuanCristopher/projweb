@@ -1,0 +1,45 @@
+/* 
+.cart-icon-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .cart-icon-wrapper img {
+ 
+    height: 24px;
+  }
+  
+
+  .cart-icon-badge {
+    position: absolute;
+
+    top: 0;
+    right: 0;
+    
+
+    transform: translate(50%, -50%);
+    
+
+    width: 16px;
+    height: 16px;
+    
+
+    border-radius: 50%;
+    background-color: red;
+    
+
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+
+    z-index: 9999;
+    
+
+    box-shadow: 0 0 4px rgba(0,0,0,0.2);
+  }
+  
+*/

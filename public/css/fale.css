@@ -62,6 +62,51 @@
     text-decoration: none;
     color: white;
   }
+
+  /* Ajuste final para o badge do carrinho */
+.cart-icon-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.cart-icon-wrapper img {
+  width: 24px; /* se seu ícone for maior, ajuste aqui */
+  height: 24px;
+}
+
+/* Bolinha vermelha */
+.cart-icon-badge {
+  position: absolute;
+  /* Jogue ela no canto superior direito do wrapper */
+  top: 0;
+  right: 0;
+  
+  /* Move um pouco para fora do ícone, se precisar */
+  transform: translate(50%, -50%);
+  
+  /* Tamanho da bolinha */
+  width: 16px;
+  height: 16px;
+  
+  /* Formato circular */
+  border-radius: 50%;
+  background-color: red;
+  
+  /* Texto dentro da bolinha */
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Para ficar por cima de tudo */
+  z-index: 9999;
+  
+  /* Sombra leve (opcional) */
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
+}
+
   
   .top-bar .contact a {
     text-decoration: none;
