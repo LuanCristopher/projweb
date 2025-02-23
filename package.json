@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/LuanCristopher/projweb/issues"
   },
-  "homepage": "https://github.com/LuanCristopher/projweb#readme"
+  "homepage": "https://github.com/LuanCristopher/projweb#readme",
+  "dependencies": {
+    "sqlite3": "^5.1.7"
+  }
 }

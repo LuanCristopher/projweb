@@ -1,97 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-
-// ======= BANCO DE DADOS EM MEMÓRIA =======
-let users = [];  // [{ email, password, token }]
-let products = [
-  {
-    id: "1",
-    name: "Bermuda Biker",
-    description: "Bermuda Biker feminina, ideal para treinos e uso casual.",
-    pricePix: 80.0,
-    priceCard: 90.0,
-    color: "Preto",
-    brand: "Genérica",
-    gender: "Feminino",
-    images: [
-      "../fotos-geral/fotos-product/bermuda-biker.webp"
-    ]
-  },
-  {
-    id: "2",
-    name: "Calça Legging",
-    description: "Calça legging para atividades físicas, com tecido confortável.",
-    pricePix: 120.0,
-    priceCard: 135.0,
-    color: "Rosa",
-    brand: "Nike",
-    gender: "Feminino",
-    images: [
-      "../fotos-geral/fotos-product/calca-leggin.webp"
-    ]
-  },
-  {
-    id: "3",
-    name: "Camiseta Adidas",
-    description: "Camiseta leve e confortável para o dia a dia.",
-    pricePix: 100.0,
-    priceCard: 110.0,
-    color: "Azul",
-    brand: "Adidas",
-    gender: "Unissex",
-    images: [
-      "../fotos-geral/fotos-product/camiseta-adidas.webp"
-    ]
-  },
-  {
-    id: "4",
-    name: "Regata Diadora",
-    description: "Regata Diadora básica, perfeita para corridas e exercícios.",
-    pricePix: 90.0,
-    priceCard: 100.0,
-    color: "Preto",
-    brand: "Diadora",
-    gender: "Feminino",
-    images: [
-      "../fotos-geral/fotos-product/regata-diadora.webp"
-    ]
-  },
-  {
-    id: "5",
-    name: "Regata Fila Transfer - Preta",
-    description: "Blusa feminina em malha de viscose com elastano.",
-    pricePix: 120.0,
-    priceCard: 135.0,
-    color: "Preto",
-    brand: "Fila",
-    gender: "Feminino",
-    images: [
-      "../fotos-geral/fotos-product/regata-fila-transfer-1.webp",
-      "../fotos-geral/fotos-product/regata-fila-transfer-2.webp",
-      "../fotos-geral/fotos-product/regata-fila-transfer-3.webp"
-    ]
-  },
-  {
-    id: "6",
-    name: "Regata Malwee",
-    description: "Regata Malwee para uso casual.",
-    pricePix: 70.0,
-    priceCard: 80.0,
-    color: "Branca",
-    brand: "Malwee",
-    gender: "Feminino",
-    images: [
-      "../fotos-geral/fotos-product/regata-malwee.webp"
-    ]
-  }
-];
-
-// Carrinho em memória (exemplo simples)
-let cart = []; // [{ productId }]
-
-// Tickets em memória (para o Fale Conosco)
-let tickets = []; // [{ name, email, message, date }]
+const db = require("./db"); // Importa o módulo de conexão com o SQLite
 
 // ======= FUNÇÕES AUXILIARES =======
 function generateToken() {
@@ -101,28 +11,33 @@ function generateToken() {
 function parseCookies(cookieHeader) {
   const cookies = {};
   if (!cookieHeader) return cookies;
-
-  cookieHeader.split(";").forEach((cookie) => {
+  cookieHeader.split(";").forEach(cookie => {
     const [name, ...rest] = cookie.trim().split("=");
     cookies[name] = rest.join("=");
   });
   return cookies;
 }
 
+// isUserLogged retorna uma Promise que resolve true/false
 function isUserLogged(req) {
   const cookieHeader = req.headers.cookie;
   const cookies = parseCookies(cookieHeader);
   const sessionToken = cookies.session;
-  if (!sessionToken) return false;
-
-  const userFound = users.find((u) => u.token === sessionToken);
-  return !!userFound;
+  return new Promise((resolve, reject) => {
+    if (!sessionToken) {
+      resolve(false);
+    } else {
+      db.get("SELECT * FROM users WHERE token = ?", [sessionToken], (err, row) => {
+        if (err || !row) resolve(false);
+        else resolve(true);
+      });
+    }
+  });
 }
 
 function serveStaticFile(res, filePath) {
   const extname = path.extname(filePath);
   let contentType = "text/html";
-
   switch (extname) {
     case ".js":
       contentType = "application/javascript";
@@ -147,7 +62,6 @@ function serveStaticFile(res, filePath) {
       contentType = "application/json";
       break;
   }
-
   fs.readFile(filePath, (err, content) => {
     if (err) {
       res.writeHead(404, { "Content-Type": "text/plain" });
@@ -159,36 +73,34 @@ function serveStaticFile(res, filePath) {
 }
 
 // ======= CRIAÇÃO DO SERVIDOR =======
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const url = req.url;
   const method = req.method;
+  const logged = await isUserLogged(req);
 
-  // ========== ROTAS DE API ==========
+  // ===== ROTAS DE API =====
 
   // 1) Cadastro (POST /api/register)
   if (url === "/api/register" && method === "POST") {
     let body = "";
-    req.on("data", (chunk) => (body += chunk));
+    req.on("data", chunk => body += chunk);
     req.on("end", () => {
       try {
         const { email, password, confirmPassword } = JSON.parse(body);
-
         if (password !== confirmPassword) {
           res.writeHead(400, { "Content-Type": "application/json" });
           return res.end(JSON.stringify({ error: "As senhas não correspondem." }));
         }
-
-        const userExists = users.find((u) => u.email === email);
-        if (userExists) {
-          res.writeHead(409, { "Content-Type": "application/json" });
-          return res.end(JSON.stringify({ error: "E-mail já cadastrado." }));
-        }
-
-        const newUser = { email, password };
-        users.push(newUser);
-
-        res.writeHead(201, { "Content-Type": "application/json" });
-        return res.end(JSON.stringify(newUser));
+        const stmt = db.prepare("INSERT INTO users (email, password) VALUES (?, ?)");
+        stmt.run(email, password, function(err) {
+          if (err) {
+            res.writeHead(409, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "E-mail já cadastrado." }));
+          }
+          res.writeHead(201, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ id: this.lastID, email }));
+        });
+        stmt.finalize();
       } catch (error) {
         res.writeHead(400, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ error: "Dados inválidos." }));
@@ -199,24 +111,28 @@ const server = http.createServer((req, res) => {
   // 2) Login (POST /api/login)
   else if (url === "/api/login" && method === "POST") {
     let body = "";
-    req.on("data", (chunk) => (body += chunk));
+    req.on("data", chunk => body += chunk);
     req.on("end", () => {
       try {
         const { emailCpf, password } = JSON.parse(body);
-        const userFound = users.find((u) => u.email === emailCpf && u.password === password);
-        if (!userFound) {
-          res.writeHead(401, { "Content-Type": "application/json" });
-          return res.end(JSON.stringify({ error: "Credenciais inválidas." }));
-        }
-
-        const token = generateToken();
-        userFound.token = token;
-
-        res.writeHead(200, {
-          "Content-Type": "application/json",
-          "Set-Cookie": `session=${token}; HttpOnly; Path=/;`
+        db.get("SELECT * FROM users WHERE email = ? AND password = ?", [emailCpf, password], (err, row) => {
+          if (err || !row) {
+            res.writeHead(401, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "Credenciais inválidas." }));
+          }
+          const token = generateToken();
+          db.run("UPDATE users SET token = ? WHERE id = ?", [token, row.id], function(err2) {
+            if (err2) {
+              res.writeHead(500, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ error: "Erro no login." }));
+            }
+            res.writeHead(200, {
+              "Content-Type": "application/json",
+              "Set-Cookie": `session=${token}; HttpOnly; Path=/;`
+            });
+            return res.end(JSON.stringify({ email: row.email, message: "Login realizado com sucesso." }));
+          });
         });
-        return res.end(JSON.stringify({ email: userFound.email, message: "Login realizado com sucesso." }));
       } catch (error) {
         res.writeHead(400, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ error: "Dados inválidos." }));
@@ -226,44 +142,52 @@ const server = http.createServer((req, res) => {
 
   // 3) Listar todos os produtos (GET /api/products)
   else if (method === "GET" && url === "/api/products") {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    return res.end(JSON.stringify(products));
+    db.all("SELECT * FROM products", (err, rows) => {
+      if (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Erro ao buscar produtos." }));
+      }
+      const prods = rows.map(row => ({ ...row, images: JSON.parse(row.images) }));
+      res.writeHead(200, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify(prods));
+    });
   }
 
   // 4) Buscar produto por ID (GET /api/products/:id)
   else if (method === "GET" && url.startsWith("/api/products/")) {
     const parts = url.split("/");
     const productId = parts[parts.length - 1];
-    const product = products.find((p) => p.id === productId);
-
-    if (!product) {
-      res.writeHead(404, { "Content-Type": "application/json" });
-      return res.end(JSON.stringify({ error: "Produto não encontrado." }));
-    }
-
-    res.writeHead(200, { "Content-Type": "application/json" });
-    return res.end(JSON.stringify(product));
+    db.get("SELECT * FROM products WHERE id = ?", [productId], (err, row) => {
+      if (err || !row) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Produto não encontrado." }));
+      }
+      row.images = JSON.parse(row.images);
+      res.writeHead(200, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify(row));
+    });
   }
 
   // 5) Carrinho - Adicionar item (POST /api/cart)
   else if (url === "/api/cart" && method === "POST") {
-    if (!isUserLogged(req)) {
+    if (!logged) {
       res.writeHead(401, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Não autorizado. Faça login." }));
     }
     let body = "";
-    req.on("data", (chunk) => (body += chunk));
+    req.on("data", chunk => body += chunk);
     req.on("end", () => {
       try {
         const { productId } = JSON.parse(body);
-        const product = products.find((p) => p.id === productId);
-        if (!product) {
-          res.writeHead(404, { "Content-Type": "application/json" });
-          return res.end(JSON.stringify({ error: "Produto não encontrado." }));
-        }
-        cart.push({ productId });
-        res.writeHead(200, { "Content-Type": "application/json" });
-        return res.end(JSON.stringify({ message: "Item adicionado ao carrinho." }));
+        // userId fixo = 1 (exemplo). Em produção, extraia do usuário logado
+        db.run("INSERT INTO cart (userId, productId, quantity) VALUES (?, ?, ?)", [1, productId, 1], function(err) {
+          if (err) {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "Erro ao adicionar ao carrinho." }));
+          }
+          res.writeHead(200, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ message: "Item adicionado ao carrinho." }));
+        });
       } catch (error) {
         res.writeHead(400, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ error: "Dados inválidos." }));
@@ -273,18 +197,48 @@ const server = http.createServer((req, res) => {
 
   // 6) Carrinho - Listar itens (GET /api/cart)
   else if (url === "/api/cart" && method === "GET") {
-    if (!isUserLogged(req)) {
+    if (!logged) {
       res.writeHead(401, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Não autorizado. Faça login." }));
     }
-    res.writeHead(200, { "Content-Type": "application/json" });
-    return res.end(JSON.stringify(cart));
+    db.all("SELECT * FROM cart", (err, rows) => {
+      if (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Erro ao buscar carrinho." }));
+      }
+      res.writeHead(200, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify(rows));
+    });
   }
 
-  // 7) Ticket de Ajuda (POST /api/ticket)
+  // 7) Carrinho - Remover item (DELETE /api/cart/:id)
+  else if (method === "DELETE" && url.startsWith("/api/cart/")) {
+    if (!logged) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Não autorizado. Faça login." }));
+    }
+    const parts = url.split("/");
+    const cartItemId = parts[parts.length - 1];
+
+    db.run("DELETE FROM cart WHERE id = ?", [cartItemId], function(err) {
+      if (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Erro ao remover item do carrinho." }));
+      }
+      if (this.changes === 0) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Item não encontrado no carrinho." }));
+      }
+      // Retorna JSON
+      res.writeHead(200, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ message: "Item removido do carrinho com sucesso." }));
+    });
+  }
+
+  // 8) Ticket de Ajuda (POST /api/ticket)
   else if (url === "/api/ticket" && method === "POST") {
     let body = "";
-    req.on("data", (chunk) => { body += chunk; });
+    req.on("data", chunk => { body += chunk; });
     req.on("end", () => {
       try {
         const { name, email, message } = JSON.parse(body);
@@ -292,11 +246,14 @@ const server = http.createServer((req, res) => {
           res.writeHead(400, { "Content-Type": "application/json" });
           return res.end(JSON.stringify({ error: "Todos os campos são obrigatórios." }));
         }
-        // Armazena o ticket em memória
-        tickets.push({ name, email, message, date: new Date() });
-        
-        res.writeHead(200, { "Content-Type": "application/json" });
-        return res.end(JSON.stringify({ message: "Ticket enviado com sucesso." }));
+        db.run("INSERT INTO tickets (name, email, message) VALUES (?, ?, ?)", [name, email, message], function(err) {
+          if (err) {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "Erro ao enviar ticket." }));
+          }
+          res.writeHead(200, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ message: "Ticket enviado com sucesso." }));
+        });
       } catch (error) {
         res.writeHead(400, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ error: "Erro ao enviar ticket." }));
@@ -304,19 +261,23 @@ const server = http.createServer((req, res) => {
     });
   }
 
-  // ========== BLOQUEAR PÁGINAS (product.html e cart.html) SE NÃO LOGADO ==========
-  else if (
-    url.startsWith("/html/product.html") ||
-    url.startsWith("/html/cart.html")
-  ) {
-    if (!isUserLogged(req)) {
+  // 9) Logout (GET /api/logout)
+  else if (url === "/api/logout" && method === "GET") {
+    res.writeHead(200, {
+      "Content-Type": "application/json",
+      "Set-Cookie": "session=; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    });
+    return res.end(JSON.stringify({ message: "Logout realizado com sucesso." }));
+  }
+
+  // BLOQUEAR PÁGINAS (product.html e cart.html) SE NÃO LOGADO
+  else if (url.startsWith("/html/product.html") || url.startsWith("/html/cart.html")) {
+    if (!logged) {
       res.writeHead(302, { Location: "/html/login.html" });
       return res.end();
     }
-
     const basePath = url.split("?")[0];
     let filePath = path.join(__dirname, "public", basePath);
-
     fs.stat(filePath, (err, stats) => {
       if (err || !stats.isFile()) {
         res.writeHead(404, { "Content-Type": "text/plain" });
@@ -326,14 +287,12 @@ const server = http.createServer((req, res) => {
     });
   }
 
-  // ========== SERVIÇO DE ARQUIVOS ESTÁTICOS (HTML, CSS, JS, IMAGENS) ==========
+  // SERVIÇO DE ARQUIVOS ESTÁTICOS (HTML, CSS, JS, IMAGENS)
   else {
     let filePath = path.join(__dirname, "public", url);
-
     if (url === "/") {
       filePath = path.join(__dirname, "public", "html", "homepage.html");
     }
-
     fs.stat(filePath, (err, stats) => {
       if (err || !stats.isFile()) {
         res.writeHead(404, { "Content-Type": "text/plain" });

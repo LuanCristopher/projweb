@@ -1,4 +1,4 @@
-// public/script/login.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const data = await response.json();
       alert(`Login realizado com sucesso! Usuário: ${data.email}`);
+      
+      // Armazena o e-mail no localStorage para uso no tooltip do login
+      localStorage.setItem("loggedEmail", data.email);
+      
       window.location.href = "/html/homepage.html";
     } catch (error) {
       alert("Erro ao fazer login: " + error.message);

@@ -1,4 +1,4 @@
-// public/script/homepage.js
+
 document.addEventListener("DOMContentLoaded", async () => {
     const productsListSection = document.getElementById("products-list");
   
