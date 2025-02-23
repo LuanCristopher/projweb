@@ -1,5 +1,3 @@
-// public/script/cart.js
-
 document.addEventListener("DOMContentLoaded", async () => {
   const cartItemsSection = document.getElementById("cart-items");
   const subtotalPriceEl = document.getElementById("subtotal-price");
@@ -25,21 +23,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     let subtotal = 0;
+    let totalCard = 0;
 
     // 2) Para cada item do carrinho, buscar o produto associado
     for (const item of cartItems) {
-      // item.id => ID da linha na tabela 'cart'
-      // item.productId => ID do produto
       const productResp = await fetch(`/api/products/${item.productId}`);
       if (!productResp.ok) {
-        // Se der erro ao buscar o produto, apenas ignore
-        continue;
+        continue; // Se der erro ao buscar o produto, apenas ignore
       }
       const product = await productResp.json();
 
-      // Cria o elemento visual
-      const cartItemDiv = document.createElement("div");
-      cartItemDiv.classList.add("cart-item");
+      // Cria o elemento visual para o item do carrinho
+      const cartItemElement = document.createElement("div");
+      cartItemElement.classList.add("cart-item");
 
       // Imagem do produto
       const img = document.createElement("img");
@@ -47,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         ? product.images[0]
         : "https://via.placeholder.com/100?text=Sem+Imagem";
       img.alt = product.name;
-      cartItemDiv.appendChild(img);
+      cartItemElement.appendChild(img);
 
       // Div de informações (nome, cor, marca, controles)
       const infoDiv = document.createElement("div");
@@ -65,21 +61,35 @@ document.addEventListener("DOMContentLoaded", async () => {
       pBrand.textContent = `Marca: ${product.brand}`;
       infoDiv.appendChild(pBrand);
 
-      // Controles de quantidade (exemplo)
+      // Controles de quantidade
       const itemControls = document.createElement("div");
       itemControls.classList.add("item-controls");
+
       const minusBtn = document.createElement("button");
       minusBtn.textContent = "-";
+      minusBtn.addEventListener("click", async () => {
+        if (item.quantity > 1) {
+          await updateCartItemQuantity(item.id, item.quantity - 1);
+        } else {
+          await removeCartItem(item.id);
+        }
+      });
+
       const qtySpan = document.createElement("span");
-      qtySpan.textContent = "1"; // Exemplo fixo
+      qtySpan.textContent = item.quantity; // Quantidade do item no carrinho
+
       const plusBtn = document.createElement("button");
       plusBtn.textContent = "+";
+      plusBtn.addEventListener("click", async () => {
+        await updateCartItemQuantity(item.id, item.quantity + 1);
+      });
+
       itemControls.appendChild(minusBtn);
       itemControls.appendChild(qtySpan);
       itemControls.appendChild(plusBtn);
       infoDiv.appendChild(itemControls);
 
-      cartItemDiv.appendChild(infoDiv);
+      cartItemElement.appendChild(infoDiv);
 
       // Div de preços e botão remover
       const priceDiv = document.createElement("div");
@@ -90,7 +100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       priceDiv.appendChild(pPix);
 
       const pCard = document.createElement("p");
-      pCard.textContent = `ou R$ ${product.priceCard} em 10x no cartão (sem juros)`;
+      pCard.textContent = `ou R$ ${product.priceCard} em 10x no cartão`;
       priceDiv.appendChild(pCard);
 
       // Botão remover (🗑️)
@@ -99,7 +109,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       removeBtn.textContent = "🗑️";
 
       removeBtn.addEventListener("click", async () => {
-        // Ao clicar, remove do carrinho via DELETE /api/cart/:id
         try {
           const deleteResp = await fetch(`/api/cart/${item.id}`, {
             method: "DELETE"
@@ -108,7 +117,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             const errData = await deleteResp.json();
             throw new Error(errData.error || "Erro ao remover item do carrinho.");
           } else {
-            // Lê JSON de sucesso
             const successData = await deleteResp.json();
             alert(successData.message);
             location.reload();
@@ -117,23 +125,56 @@ document.addEventListener("DOMContentLoaded", async () => {
           alert(error.message);
         }
       });
+
       priceDiv.appendChild(removeBtn);
+      cartItemElement.appendChild(priceDiv);
 
-      cartItemDiv.appendChild(priceDiv);
-
-      cartItemsSection.appendChild(cartItemDiv);
+      cartItemsSection.appendChild(cartItemElement);
 
       // Soma ao subtotal
-      subtotal += product.pricePix;
+      subtotal += product.pricePix * item.quantity;
+      totalCard += product.priceCard * item.quantity;
     }
 
     // 3) Atualiza subtotal e total
     subtotalPriceEl.textContent = `R$ ${subtotal.toFixed(2)}`;
     totalPriceEl.innerHTML = `
       R$ ${subtotal.toFixed(2)} NO PIX
-      <span class="total-subtext">ou R$ ${(subtotal + 50).toFixed(2)} em 10x no cartão (sem juros)</span>
+      <span class="total-subtext">ou R$ ${totalCard.toFixed(2)} em 10x no cartão</span>
     `;
   } catch (error) {
     cartItemsSection.innerHTML = `<p>Erro: ${error.message}</p>`;
   }
 });
+
+// Função para atualizar a quantidade de um item no carrinho
+async function updateCartItemQuantity(cartItemId, quantity) {
+  try {
+    const response = await fetch(`/api/cart/${cartItemId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quantity })
+    });
+    if (!response.ok) {
+      throw new Error("Erro ao atualizar quantidade.");
+    }
+    location.reload();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+// Função para remover um item do carrinho
+async function removeCartItem(cartItemId) {
+  try {
+    const response = await fetch(`/api/cart/${cartItemId}`, {
+      method: "DELETE"
+    });
+    if (!response.ok) {
+      throw new Error("Erro ao remover item.");
+    }
+    location.reload();
+  } catch (error) {
+    alert(error.message);
+  }
+}
