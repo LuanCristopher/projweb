@@ -179,14 +179,36 @@ const server = http.createServer(async (req, res) => {
     req.on("end", () => {
       try {
         const { productId } = JSON.parse(body);
-        // userId fixo = 1 (exemplo). Em produção, extraia do usuário logado
-        db.run("INSERT INTO cart (userId, productId, quantity) VALUES (?, ?, ?)", [1, productId, 1], function(err) {
+        const userId = 1; // Em produção, extraia o ID do usuário logado
+
+        // Verifica se o item já está no carrinho
+        db.get("SELECT * FROM cart WHERE userId = ? AND productId = ?", [userId, productId], (err, row) => {
           if (err) {
             res.writeHead(500, { "Content-Type": "application/json" });
-            return res.end(JSON.stringify({ error: "Erro ao adicionar ao carrinho." }));
+            return res.end(JSON.stringify({ error: "Erro ao verificar carrinho." }));
           }
-          res.writeHead(200, { "Content-Type": "application/json" });
-          return res.end(JSON.stringify({ message: "Item adicionado ao carrinho." }));
+
+          if (row) {
+            // Se o item já existe, atualiza a quantidade
+            db.run("UPDATE cart SET quantity = quantity + 1 WHERE id = ?", [row.id], function(err) {
+              if (err) {
+                res.writeHead(500, { "Content-Type": "application/json" });
+                return res.end(JSON.stringify({ error: "Erro ao atualizar carrinho." }));
+              }
+              res.writeHead(200, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ message: "Quantidade do item atualizada no carrinho." }));
+            });
+          } else {
+            // Se o item não existe, adiciona ao carrinho
+            db.run("INSERT INTO cart (userId, productId, quantity) VALUES (?, ?, ?)", [userId, productId, 1], function(err) {
+              if (err) {
+                res.writeHead(500, { "Content-Type": "application/json" });
+                return res.end(JSON.stringify({ error: "Erro ao adicionar ao carrinho." }));
+              }
+              res.writeHead(200, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ message: "Item adicionado ao carrinho." }));
+            });
+          }
         });
       } catch (error) {
         res.writeHead(400, { "Content-Type": "application/json" });
@@ -201,7 +223,8 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(401, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Não autorizado. Faça login." }));
     }
-    db.all("SELECT * FROM cart", (err, rows) => {
+    const userId = 1; // Em produção, extraia o ID do usuário logado
+    db.all("SELECT * FROM cart WHERE userId = ?", [userId], (err, rows) => {
       if (err) {
         res.writeHead(500, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ error: "Erro ao buscar carrinho." }));
@@ -229,13 +252,40 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(404, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ error: "Item não encontrado no carrinho." }));
       }
-      // Retorna JSON
       res.writeHead(200, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ message: "Item removido do carrinho com sucesso." }));
     });
   }
 
-  // 8) Ticket de Ajuda (POST /api/ticket)
+  // 8) Carrinho - Atualizar quantidade (PUT /api/cart/:id)
+  else if (method === "PUT" && url.startsWith("/api/cart/")) {
+    if (!logged) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Não autorizado. Faça login." }));
+    }
+    const parts = url.split("/");
+    const cartItemId = parts[parts.length - 1];
+    let body = "";
+    req.on("data", chunk => body += chunk);
+    req.on("end", () => {
+      try {
+        const { quantity } = JSON.parse(body);
+        db.run("UPDATE cart SET quantity = ? WHERE id = ?", [quantity, cartItemId], function(err) {
+          if (err) {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "Erro ao atualizar quantidade." }));
+          }
+          res.writeHead(200, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ message: "Quantidade atualizada com sucesso." }));
+        });
+      } catch (error) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Dados inválidos." }));
+      }
+    });
+  }
+
+  // 9) Ticket de Ajuda (POST /api/ticket)
   else if (url === "/api/ticket" && method === "POST") {
     let body = "";
     req.on("data", chunk => { body += chunk; });
@@ -261,7 +311,7 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
-  // 9) Logout (GET /api/logout)
+  // 10) Logout (GET /api/logout)
   else if (url === "/api/logout" && method === "GET") {
     res.writeHead(200, {
       "Content-Type": "application/json",
