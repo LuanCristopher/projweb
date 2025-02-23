@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", async () => {
   const cartItemsSection = document.getElementById("cart-items");
   const subtotalPriceEl = document.getElementById("subtotal-price");
@@ -9,31 +10,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   try {
-    // 1) Pega os itens do carrinho
+    // 1) Pega os itens do carrinho do usuário logado
     const resp = await fetch("/api/cart", { method: "GET" });
     if (!resp.ok) {
       throw new Error("Erro ao carregar carrinho.");
     }
-
     const cartItems = await resp.json();
-
     if (cartItems.length === 0) {
       cartItemsSection.innerHTML = "<p>Seu carrinho está vazio.</p>";
       return;
     }
 
-    let subtotal = 0;
-    let totalCard = 0;
+    let subtotalPix = 0;
+    let subtotalCard = 0;
 
-    // 2) Para cada item do carrinho, buscar o produto associado
+    // 2) Para cada item, buscar os detalhes do produto
     for (const item of cartItems) {
       const productResp = await fetch(`/api/products/${item.productId}`);
-      if (!productResp.ok) {
-        continue; // Se der erro ao buscar o produto, apenas ignore
-      }
+      if (!productResp.ok) continue;
       const product = await productResp.json();
 
-      // Cria o elemento visual para o item do carrinho
+      // Cria o elemento do item
       const cartItemElement = document.createElement("div");
       cartItemElement.classList.add("cart-item");
 
@@ -45,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       img.alt = product.name;
       cartItemElement.appendChild(img);
 
-      // Div de informações (nome, cor, marca, controles)
+      // Informações do produto
       const infoDiv = document.createElement("div");
       infoDiv.classList.add("item-info");
 
@@ -76,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       const qtySpan = document.createElement("span");
-      qtySpan.textContent = item.quantity; // Quantidade do item no carrinho
+      qtySpan.textContent = item.quantity;
 
       const plusBtn = document.createElement("button");
       plusBtn.textContent = "+";
@@ -91,23 +88,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       cartItemElement.appendChild(infoDiv);
 
-      // Div de preços e botão remover
+      // Preços e botão de remover
       const priceDiv = document.createElement("div");
       priceDiv.classList.add("item-price");
 
       const pPix = document.createElement("p");
-      pPix.textContent = `R$ ${product.pricePix} no PIX`;
+      pPix.textContent = `R$ ${product.pricePix.toFixed(2)} no PIX`;
       priceDiv.appendChild(pPix);
 
       const pCard = document.createElement("p");
-      pCard.textContent = `ou R$ ${product.priceCard} em 10x no cartão`;
+      pCard.textContent = `ou R$ ${product.priceCard.toFixed(2)} em 10x no cartão`;
       priceDiv.appendChild(pCard);
 
-      // Botão remover (🗑️)
       const removeBtn = document.createElement("button");
       removeBtn.classList.add("remove");
       removeBtn.textContent = "🗑️";
-
       removeBtn.addEventListener("click", async () => {
         try {
           const deleteResp = await fetch(`/api/cart/${item.id}`, {
@@ -116,38 +111,34 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (!deleteResp.ok) {
             const errData = await deleteResp.json();
             throw new Error(errData.error || "Erro ao remover item do carrinho.");
-          } else {
-            const successData = await deleteResp.json();
-            alert(successData.message);
-            location.reload();
           }
+          const successData = await deleteResp.json();
+          alert(successData.message);
+          location.reload();
         } catch (error) {
           alert(error.message);
         }
       });
-
       priceDiv.appendChild(removeBtn);
       cartItemElement.appendChild(priceDiv);
 
       cartItemsSection.appendChild(cartItemElement);
 
-      // Soma ao subtotal
-      subtotal += product.pricePix * item.quantity;
-      totalCard += product.priceCard * item.quantity;
+      // Atualiza totais
+      subtotalPix += product.pricePix * item.quantity;
+      subtotalCard += product.priceCard * item.quantity;
     }
 
-    // 3) Atualiza subtotal e total
-    subtotalPriceEl.textContent = `R$ ${subtotal.toFixed(2)}`;
+    subtotalPriceEl.textContent = `R$ ${subtotalPix.toFixed(2)}`;
     totalPriceEl.innerHTML = `
-      R$ ${subtotal.toFixed(2)} NO PIX
-      <span class="total-subtext">ou R$ ${totalCard.toFixed(2)} em 10x no cartão</span>
+      R$ ${subtotalPix.toFixed(2)} NO PIX
+      <span class="total-subtext">ou R$ ${subtotalCard.toFixed(2)} em 10x no cartão</span>
     `;
   } catch (error) {
     cartItemsSection.innerHTML = `<p>Erro: ${error.message}</p>`;
   }
 });
 
-// Função para atualizar a quantidade de um item no carrinho
 async function updateCartItemQuantity(cartItemId, quantity) {
   try {
     const response = await fetch(`/api/cart/${cartItemId}`, {
@@ -164,7 +155,6 @@ async function updateCartItemQuantity(cartItemId, quantity) {
   }
 }
 
-// Função para remover um item do carrinho
 async function removeCartItem(cartItemId) {
   try {
     const response = await fetch(`/api/cart/${cartItemId}`, {

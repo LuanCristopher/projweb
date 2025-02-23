@@ -4,6 +4,7 @@ const path = require("path");
 const db = require("./db"); // Importa o módulo de conexão com o SQLite
 
 // ======= FUNÇÕES AUXILIARES =======
+
 function generateToken() {
   return Math.random().toString(36).substring(2);
 }
@@ -18,18 +19,18 @@ function parseCookies(cookieHeader) {
   return cookies;
 }
 
-// isUserLogged retorna uma Promise que resolve true/false
-function isUserLogged(req) {
+// Função que retorna uma Promise com os dados do usuário logado ou null
+function getLoggedUser(req) {
   const cookieHeader = req.headers.cookie;
   const cookies = parseCookies(cookieHeader);
   const sessionToken = cookies.session;
   return new Promise((resolve, reject) => {
     if (!sessionToken) {
-      resolve(false);
+      resolve(null);
     } else {
       db.get("SELECT * FROM users WHERE token = ?", [sessionToken], (err, row) => {
-        if (err || !row) resolve(false);
-        else resolve(true);
+        if (err || !row) resolve(null);
+        else resolve(row);
       });
     }
   });
@@ -76,9 +77,8 @@ function serveStaticFile(res, filePath) {
 const server = http.createServer(async (req, res) => {
   const url = req.url;
   const method = req.method;
-  const logged = await isUserLogged(req);
-
-  // ===== ROTAS DE API =====
+  const user = await getLoggedUser(req);
+  const logged = !!user;
 
   // 1) Cadastro (POST /api/register)
   if (url === "/api/register" && method === "POST") {
@@ -107,7 +107,7 @@ const server = http.createServer(async (req, res) => {
       }
     });
   }
-
+  
   // 2) Login (POST /api/login)
   else if (url === "/api/login" && method === "POST") {
     let body = "";
@@ -139,7 +139,7 @@ const server = http.createServer(async (req, res) => {
       }
     });
   }
-
+  
   // 3) Listar todos os produtos (GET /api/products)
   else if (method === "GET" && url === "/api/products") {
     db.all("SELECT * FROM products", (err, rows) => {
@@ -152,7 +152,7 @@ const server = http.createServer(async (req, res) => {
       return res.end(JSON.stringify(prods));
     });
   }
-
+  
   // 4) Buscar produto por ID (GET /api/products/:id)
   else if (method === "GET" && url.startsWith("/api/products/")) {
     const parts = url.split("/");
@@ -167,7 +167,7 @@ const server = http.createServer(async (req, res) => {
       return res.end(JSON.stringify(row));
     });
   }
-
+  
   // 5) Carrinho - Adicionar item (POST /api/cart)
   else if (url === "/api/cart" && method === "POST") {
     if (!logged) {
@@ -179,36 +179,14 @@ const server = http.createServer(async (req, res) => {
     req.on("end", () => {
       try {
         const { productId } = JSON.parse(body);
-        const userId = 1; // Em produção, extraia o ID do usuário logado
-
-        // Verifica se o item já está no carrinho
-        db.get("SELECT * FROM cart WHERE userId = ? AND productId = ?", [userId, productId], (err, row) => {
+        // Agora usamos o id do usuário logado
+        db.run("INSERT INTO cart (userId, productId, quantity) VALUES (?, ?, ?)", [user.id, productId, 1], function(err) {
           if (err) {
             res.writeHead(500, { "Content-Type": "application/json" });
-            return res.end(JSON.stringify({ error: "Erro ao verificar carrinho." }));
+            return res.end(JSON.stringify({ error: "Erro ao adicionar ao carrinho." }));
           }
-
-          if (row) {
-            // Se o item já existe, atualiza a quantidade
-            db.run("UPDATE cart SET quantity = quantity + 1 WHERE id = ?", [row.id], function(err) {
-              if (err) {
-                res.writeHead(500, { "Content-Type": "application/json" });
-                return res.end(JSON.stringify({ error: "Erro ao atualizar carrinho." }));
-              }
-              res.writeHead(200, { "Content-Type": "application/json" });
-              return res.end(JSON.stringify({ message: "Quantidade do item atualizada no carrinho." }));
-            });
-          } else {
-            // Se o item não existe, adiciona ao carrinho
-            db.run("INSERT INTO cart (userId, productId, quantity) VALUES (?, ?, ?)", [userId, productId, 1], function(err) {
-              if (err) {
-                res.writeHead(500, { "Content-Type": "application/json" });
-                return res.end(JSON.stringify({ error: "Erro ao adicionar ao carrinho." }));
-              }
-              res.writeHead(200, { "Content-Type": "application/json" });
-              return res.end(JSON.stringify({ message: "Item adicionado ao carrinho." }));
-            });
-          }
+          res.writeHead(200, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ message: "Item adicionado ao carrinho." }));
         });
       } catch (error) {
         res.writeHead(400, { "Content-Type": "application/json" });
@@ -216,15 +194,14 @@ const server = http.createServer(async (req, res) => {
       }
     });
   }
-
+  
   // 6) Carrinho - Listar itens (GET /api/cart)
   else if (url === "/api/cart" && method === "GET") {
     if (!logged) {
       res.writeHead(401, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Não autorizado. Faça login." }));
     }
-    const userId = 1; // Em produção, extraia o ID do usuário logado
-    db.all("SELECT * FROM cart WHERE userId = ?", [userId], (err, rows) => {
+    db.all("SELECT * FROM cart WHERE userId = ?", [user.id], (err, rows) => {
       if (err) {
         res.writeHead(500, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ error: "Erro ao buscar carrinho." }));
@@ -233,7 +210,7 @@ const server = http.createServer(async (req, res) => {
       return res.end(JSON.stringify(rows));
     });
   }
-
+  
   // 7) Carrinho - Remover item (DELETE /api/cart/:id)
   else if (method === "DELETE" && url.startsWith("/api/cart/")) {
     if (!logged) {
@@ -242,8 +219,7 @@ const server = http.createServer(async (req, res) => {
     }
     const parts = url.split("/");
     const cartItemId = parts[parts.length - 1];
-
-    db.run("DELETE FROM cart WHERE id = ?", [cartItemId], function(err) {
+    db.run("DELETE FROM cart WHERE id = ? AND userId = ?", [cartItemId, user.id], function(err) {
       if (err) {
         res.writeHead(500, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ error: "Erro ao remover item do carrinho." }));
@@ -256,7 +232,7 @@ const server = http.createServer(async (req, res) => {
       return res.end(JSON.stringify({ message: "Item removido do carrinho com sucesso." }));
     });
   }
-
+  
   // 8) Carrinho - Atualizar quantidade (PUT /api/cart/:id)
   else if (method === "PUT" && url.startsWith("/api/cart/")) {
     if (!logged) {
@@ -270,7 +246,7 @@ const server = http.createServer(async (req, res) => {
     req.on("end", () => {
       try {
         const { quantity } = JSON.parse(body);
-        db.run("UPDATE cart SET quantity = ? WHERE id = ?", [quantity, cartItemId], function(err) {
+        db.run("UPDATE cart SET quantity = ? WHERE id = ? AND userId = ?", [quantity, cartItemId, user.id], function(err) {
           if (err) {
             res.writeHead(500, { "Content-Type": "application/json" });
             return res.end(JSON.stringify({ error: "Erro ao atualizar quantidade." }));
@@ -284,7 +260,7 @@ const server = http.createServer(async (req, res) => {
       }
     });
   }
-
+  
   // 9) Ticket de Ajuda (POST /api/ticket)
   else if (url === "/api/ticket" && method === "POST") {
     let body = "";
@@ -310,7 +286,7 @@ const server = http.createServer(async (req, res) => {
       }
     });
   }
-
+  
   // 10) Logout (GET /api/logout)
   else if (url === "/api/logout" && method === "GET") {
     res.writeHead(200, {
@@ -319,7 +295,7 @@ const server = http.createServer(async (req, res) => {
     });
     return res.end(JSON.stringify({ message: "Logout realizado com sucesso." }));
   }
-
+  
   // BLOQUEAR PÁGINAS (product.html e cart.html) SE NÃO LOGADO
   else if (url.startsWith("/html/product.html") || url.startsWith("/html/cart.html")) {
     if (!logged) {
@@ -336,7 +312,7 @@ const server = http.createServer(async (req, res) => {
       serveStaticFile(res, filePath);
     });
   }
-
+  
   // SERVIÇO DE ARQUIVOS ESTÁTICOS (HTML, CSS, JS, IMAGENS)
   else {
     let filePath = path.join(__dirname, "public", url);
