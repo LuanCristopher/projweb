@@ -85,11 +85,13 @@ let products = [
       "../fotos-geral/fotos-product/regata-malwee.webp"
     ]
   }
-  // Adicione mais se quiser
 ];
 
 // Carrinho em memória (exemplo simples)
 let cart = []; // [{ productId }]
+
+// Tickets em memória (para o Fale Conosco)
+let tickets = []; // [{ name, email, message, date }]
 
 // ======= FUNÇÕES AUXILIARES =======
 function generateToken() {
@@ -275,9 +277,31 @@ const server = http.createServer((req, res) => {
       res.writeHead(401, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Não autorizado. Faça login." }));
     }
-    // Retorna array cart
     res.writeHead(200, { "Content-Type": "application/json" });
     return res.end(JSON.stringify(cart));
+  }
+
+  // 7) Ticket de Ajuda (POST /api/ticket)
+  else if (url === "/api/ticket" && method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => { body += chunk; });
+    req.on("end", () => {
+      try {
+        const { name, email, message } = JSON.parse(body);
+        if (!name || !email || !message) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ error: "Todos os campos são obrigatórios." }));
+        }
+        // Armazena o ticket em memória
+        tickets.push({ name, email, message, date: new Date() });
+        
+        res.writeHead(200, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ message: "Ticket enviado com sucesso." }));
+      } catch (error) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Erro ao enviar ticket." }));
+      }
+    });
   }
 
   // ========== BLOQUEAR PÁGINAS (product.html e cart.html) SE NÃO LOGADO ==========
@@ -285,14 +309,11 @@ const server = http.createServer((req, res) => {
     url.startsWith("/html/product.html") ||
     url.startsWith("/html/cart.html")
   ) {
-    // 1) Se não estiver logado, redireciona para login
     if (!isUserLogged(req)) {
       res.writeHead(302, { Location: "/html/login.html" });
       return res.end();
     }
 
-    // 2) Remove query string para achar o arquivo físico
-    //    ex: "/html/product.html?id=2" -> "/html/product.html"
     const basePath = url.split("?")[0];
     let filePath = path.join(__dirname, "public", basePath);
 
@@ -309,7 +330,6 @@ const server = http.createServer((req, res) => {
   else {
     let filePath = path.join(__dirname, "public", url);
 
-    // Se for "/", manda pra homepage
     if (url === "/") {
       filePath = path.join(__dirname, "public", "html", "homepage.html");
     }
